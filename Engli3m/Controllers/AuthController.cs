@@ -24,19 +24,26 @@ namespace Engli3m.Controllers
 
             return Ok(result);
         }
-
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginDto loginDto)
+        public async Task<IActionResult> Login(LoginDto dto)
         {
-            var result = await _authServices.LoginAsync(loginDto);
-
-            if (!result.Success)
+            try
             {
-                return Unauthorized(result);
-            }
+                var result = await _authServices.LoginAsync(dto);
+                if (result == null)
+                    return Unauthorized(new { message = "Invalid email or password." });
 
-            return Ok(result);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                // Return 400 BadRequest with JSON body
+                return BadRequest(new { message = ex.Message });
+            }
         }
+
+
+
 
         [HttpPost("logout")]
         [Authorize]

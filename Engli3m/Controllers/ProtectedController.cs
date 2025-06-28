@@ -26,11 +26,11 @@ namespace Engli3m.Controllers
         public IActionResult StudentOnly() => Ok("Students only");
 
         [HttpGet("teacher-only")]
-        [Authorize(Roles = "Teacher")]
+        [Authorize(Roles = "Admin")]
         public IActionResult TeacherOnly() => Ok("Teachers only");
 
         [HttpGet("admin-only")]
-        [Authorize(Roles = "Teacher,Assistant")]
+        [Authorize(Roles = "Admin")]
         public IActionResult AdminOnly() => Ok("Admins only");
     }
 }

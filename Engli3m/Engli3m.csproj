@@ -30,4 +30,10 @@
     <ProjectReference Include="..\Engli3m.Infrastructure\Engli3m.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\uploads\lectures\videos\" />
+    <Folder Include="wwwroot\uploads\answers\images\" />
+    <Folder Include="wwwroot\uploads\quizzes\images\" />
+  </ItemGroup>
+
 </Project>

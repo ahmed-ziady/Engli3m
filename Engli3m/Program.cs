@@ -13,11 +13,11 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
-// Add DbContext
+// 1. Add DbContext
 builder.Services.AddDbContext<EnglishDbContext>(options =>
     options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
-// Configure Identity
+// 2. Configure Identity
 builder.Services.AddIdentity<User, Role>(options =>
 {
     options.Password.RequireDigit = true;
@@ -30,7 +30,7 @@ builder.Services.AddIdentity<User, Role>(options =>
 .AddEntityFrameworkStores<EnglishDbContext>()
 .AddDefaultTokenProviders();
 
-// Configure JWT Authentication
+// 3. Configure JWT Authentication
 var jwtSettings = configuration.GetSection("Jwt");
 var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]!);
 
@@ -54,25 +54,26 @@ builder.Services.AddAuthentication(options =>
         NameClaimType = ClaimTypes.NameIdentifier,
         RoleClaimType = ClaimTypes.Role
     };
+
+
 });
 
-// Configure Authorization Policies
+// 4. Configure Authorization Policies
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("Student", policy => policy.RequireRole("Student"));
-    options.AddPolicy("Teacher", policy => policy.RequireRole("Teacher"));
-    options.AddPolicy("Assistant", policy => policy.RequireRole("Assistant"));
-    options.AddPolicy("Admin", policy => policy.RequireRole("Teacher", "Assistant"));
+    options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
 });
 
-// Register Services
+// 5. Register Application Services
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthServices, AuthServices>();
-
-// Configure Controllers
+builder.Services.AddScoped<IAdminService, AdminServices>();
+builder.Services.AddScoped<IStudentService, StudentServices>();
+// 6. Add Controllers
 builder.Services.AddControllers();
 
-// Configure Swagger
+// 7. Configure Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -109,7 +110,7 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-// Configure CORS
+// 8. Configure CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -122,63 +123,62 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Database Seeding
+// 9. Seed Roles & Users
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
+    var logger = services.GetRequiredService<ILogger<Program>>();
+
     try
     {
+        // Fix NULL tokens before seeding
+        var db = services.GetRequiredService<EnglishDbContext>();
+        await db.Database.ExecuteSqlRawAsync(
+            "UPDATE AspNetUsers SET CurrentJwtToken = '' WHERE CurrentJwtToken IS NULL");
+
         var roleManager = services.GetRequiredService<RoleManager<Role>>();
         var userManager = services.GetRequiredService<UserManager<User>>();
-
         await SeedRolesAndUsers(roleManager, userManager);
     }
     catch (Exception ex)
     {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while seeding the database.");
+        logger.LogError(ex, "Seeding error");
     }
 }
 
-// 1. Enable Routing
+app.UseStaticFiles();
 app.UseRouting();
-
-// 2. HTTPS and CORS
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 
-// 3. Authentication & Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
-// 4. Map Controllers
 app.MapControllers();
-
-// 5. Redirect root to Swagger UI
 app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
 
-// 6. Swagger UI
 app.UseSwagger();
 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Engli3m API V1"));
 
 app.Run();
 
-// Seeding Function
+// Helper: Seed Roles & System Users
 static async Task SeedRolesAndUsers(RoleManager<Role> roleManager, UserManager<User> userManager)
 {
-    // Seed Roles
-    string[] roleNames = { "Student", "Teacher", "Assistant" };
+    string[] roleNames = ["Student", "Admin"];
+
     foreach (var roleName in roleNames)
     {
         if (!await roleManager.RoleExistsAsync(roleName))
-        {
             await roleManager.CreateAsync(new Role(roleName));
-        }
     }
 
-    // Seed Teacher Account
-    var teacherEmail = "momenhelmy085@gmail.com";
-    var teacherUser = await userManager.FindByEmailAsync(teacherEmail);
+    // System Teacher (Admin role)
+    const string teacherEmail = "momenhelmy085@gmail.com";
+    var normalizedTeacherEmail = teacherEmail.ToUpper();
+    var teacherUser = await userManager.Users
+        .FirstOrDefaultAsync(u => u.NormalizedEmail == normalizedTeacherEmail);
+
     if (teacherUser == null)
     {
         teacherUser = new User
@@ -187,21 +187,21 @@ static async Task SeedRolesAndUsers(RoleManager<Role> roleManager, UserManager<U
             Email = teacherEmail,
             FirstName = "System",
             LastName = "Teacher",
-            Grade = "N/A",
             PhoneNumber = "+1234567890",
-            EmailConfirmed = true
+            EmailConfirmed = true,
+            CurrentJwtToken = null
         };
-
         var result = await userManager.CreateAsync(teacherUser, "momenPass1234!");
         if (result.Succeeded)
-        {
-            await userManager.AddToRoleAsync(teacherUser, "Teacher");
-        }
+            await userManager.AddToRoleAsync(teacherUser, "Admin");
     }
 
-    // Seed Assistant Account
-    var assistantEmail = "mariam3012004maroo@gmail.com";
-    var assistantUser = await userManager.FindByEmailAsync(assistantEmail);
+    // System Assistant (Admin role)
+    const string assistantEmail = "mariam3012004maroo@gmail.com";
+    var normalizedAssistantEmail = assistantEmail.ToUpper();
+    var assistantUser = await userManager.Users
+        .FirstOrDefaultAsync(u => u.NormalizedEmail == normalizedAssistantEmail);
+
     if (assistantUser == null)
     {
         assistantUser = new User
@@ -210,15 +210,12 @@ static async Task SeedRolesAndUsers(RoleManager<Role> roleManager, UserManager<U
             Email = assistantEmail,
             FirstName = "System",
             LastName = "Assistant",
-            Grade = "N/A",
             PhoneNumber = "+1234567890",
-            EmailConfirmed = true
+            EmailConfirmed = true,
+            CurrentJwtToken = null
         };
-
         var result = await userManager.CreateAsync(assistantUser, "Assistmariam#1");
         if (result.Succeeded)
-        {
-            await userManager.AddToRoleAsync(assistantUser, "Assistant");
-        }
+            await userManager.AddToRoleAsync(assistantUser, "Admin");
     }
 }
