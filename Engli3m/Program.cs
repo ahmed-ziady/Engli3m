@@ -5,6 +5,7 @@ using Engli3m.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Security.Claims;
@@ -54,9 +55,30 @@ builder.Services.AddAuthentication(options =>
         NameClaimType = ClaimTypes.NameIdentifier,
         RoleClaimType = ClaimTypes.Role
     };
+    options.Events= new JwtBearerEvents
+    {
+        OnTokenValidated = async context =>
+        {
+            var userManager = context.HttpContext.RequestServices.GetRequiredService<UserManager<User>>();
+            var userId = context.Principal!.FindFirstValue(ClaimTypes.NameIdentifier);
 
+            if (string.IsNullOrEmpty(userId))
+            {
+                context.Fail("Invalid token: missing user ID.");
+                return;
+            }
+            var user = await userManager.FindByIdAsync(userId);
 
-});
+            if (user == null || user.IsLocked)
+            {
+                context.Fail("User not found or account is locked.");
+                return;
+            }
+        }
+    };
+
+}
+);
 
 // 4. Configure Authorization Policies
 builder.Services.AddAuthorization(options =>
@@ -146,7 +168,22 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-app.UseStaticFiles();
+app.UseCors("AllowAll");
+
+// 3. Static Files עם כותרות CORS
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "wwwroot")),
+    RequestPath = "",
+    OnPrepareResponse = ctx =>
+    {
+        ctx.Context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
+        ctx.Context.Response.Headers.Append("Access-Control-Allow-Methods", "GET, OPTIONS");
+        ctx.Context.Response.Headers.Append("Access-Control-Allow-Headers", "Content-Type");
+    }
+});
+
 app.UseRouting();
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");

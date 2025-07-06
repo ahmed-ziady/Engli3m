@@ -16,7 +16,7 @@ namespace Engli3m.Infrastructure.Services
             var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]!);
             var issuer = jwtSettings["Issuer"];
             var audience = jwtSettings["Audience"];
-            var expiryMinutes = Convert.ToDouble(jwtSettings["ExpiryInMinutes"]);
+            var expiryMonths = Convert.ToInt32(jwtSettings["ExpiryInMinutes"]);
 
             var claims = new List<Claim>
             {
@@ -35,7 +35,7 @@ namespace Engli3m.Infrastructure.Services
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddMinutes(expiryMinutes),
+                Expires = DateTime.UtcNow.AddMonths(expiryMonths),
                 Issuer = issuer,
                 Audience = audience,
                 SigningCredentials = new SigningCredentials(

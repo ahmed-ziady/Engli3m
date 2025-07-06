@@ -31,7 +31,8 @@ namespace Engli3m.Infrastructure.Services
                 FirstName = registerDto.FirstName,
                 LastName = registerDto.LastName,
                 Grade = registerDto.Grade,
-                PhoneNumber = registerDto.PhoneNumber
+                PhoneNumber = registerDto.PhoneNumber,
+                IsLocked =true
             };
 
             // Create user
@@ -89,7 +90,6 @@ namespace Engli3m.Infrastructure.Services
                 };
             }
 
-            // Check password
             if (!await _userManager.CheckPasswordAsync(user, loginDto.Password))
             {
                 return new AuthResponseDto
@@ -99,9 +99,29 @@ namespace Engli3m.Infrastructure.Services
                 };
             }
 
-            // Generate JWT token
             var roles = await _userManager.GetRolesAsync(user);
+
+            if (user.IsLocked && roles.Contains("Student"))
+            {
+                return new AuthResponseDto
+                {
+
+                    Success = false,
+                    Errors = ["Your account has been locked. Please contact the teacher or assistant for support."]
+                };
+            }
+            //if (user.CurrentJwtToken != null && user.TokenExpiry > DateTime.UtcNow)
+            //{
+            //    return new AuthResponseDto
+            //    {
+            //        Success = false,
+            //        Errors = ["You are already logged in another device."]
+            //    };
+            //}
             var token = _tokenService.GenerateJwtToken(user, roles);
+            user.CurrentJwtToken = token;
+            user.TokenExpiry = DateTime.UtcNow.AddMonths(1);
+            await _userManager.UpdateAsync(user);
 
             return new AuthResponseDto
             {
@@ -118,7 +138,6 @@ namespace Engli3m.Infrastructure.Services
             var user = await _userManager.FindByIdAsync(userId.ToString());
             if (user == null) return false;
 
-            // Update security stamp to invalidate current token
             await _userManager.UpdateSecurityStampAsync(user);
             return true;
         }

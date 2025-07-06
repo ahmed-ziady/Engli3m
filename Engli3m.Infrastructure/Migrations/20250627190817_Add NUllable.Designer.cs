@@ -4,6 +4,7 @@ using Engli3m.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Engli3m.Infrastructure.Migrations
 {
     [DbContext(typeof(EnglishDbContext))]
-    partial class EnglishDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250627190817_Add NUllable")]
+    partial class AddNUllable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,7 +33,7 @@ namespace Engli3m.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LectureId"));
 
-                    b.Property<int>("AssistantId")
+                    b.Property<int>("AdminId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("Date")
@@ -39,9 +42,6 @@ namespace Engli3m.Infrastructure.Migrations
                     b.Property<string>("Grade")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("TeacherId")
-                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -53,9 +53,7 @@ namespace Engli3m.Infrastructure.Migrations
 
                     b.HasKey("LectureId");
 
-                    b.HasIndex("AssistantId");
-
-                    b.HasIndex("TeacherId");
+                    b.HasIndex("AdminId");
 
                     b.ToTable("Lectures");
                 });
@@ -68,7 +66,7 @@ namespace Engli3m.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("QuizId"));
 
-                    b.Property<int>("AssistantId")
+                    b.Property<int>("AdminId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("Date")
@@ -85,20 +83,15 @@ namespace Engli3m.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("TeacherId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("QuizId");
 
-                    b.HasIndex("AssistantId");
+                    b.HasIndex("AdminId");
 
                     b.HasIndex("LectureId");
-
-                    b.HasIndex("TeacherId");
 
                     b.ToTable("Quizzes");
                 });
@@ -182,6 +175,9 @@ namespace Engli3m.Infrastructure.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("CurrentJwtToken")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -195,6 +191,9 @@ namespace Engli3m.Infrastructure.Migrations
 
                     b.Property<string>("Grade")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsLocked")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -225,6 +224,9 @@ namespace Engli3m.Infrastructure.Migrations
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("TokenExpiry")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
@@ -351,28 +353,20 @@ namespace Engli3m.Infrastructure.Migrations
 
             modelBuilder.Entity("Engli3m.Domain.Enities.Lecture", b =>
                 {
-                    b.HasOne("Engli3m.Domain.Enities.User", "Assistant")
-                        .WithMany("LecturesAsAssistant")
-                        .HasForeignKey("AssistantId")
+                    b.HasOne("Engli3m.Domain.Enities.User", "Admin")
+                        .WithMany("LecturesAsAdmin")
+                        .HasForeignKey("AdminId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Engli3m.Domain.Enities.User", "Teacher")
-                        .WithMany("LecturesAsTeacher")
-                        .HasForeignKey("TeacherId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Assistant");
-
-                    b.Navigation("Teacher");
+                    b.Navigation("Admin");
                 });
 
             modelBuilder.Entity("Engli3m.Domain.Enities.Quiz", b =>
                 {
-                    b.HasOne("Engli3m.Domain.Enities.User", "Assistant")
-                        .WithMany("QuizzesAsAssistant")
-                        .HasForeignKey("AssistantId")
+                    b.HasOne("Engli3m.Domain.Enities.User", "Admin")
+                        .WithMany("QuizzesAsAdmin")
+                        .HasForeignKey("AdminId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -382,17 +376,9 @@ namespace Engli3m.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Engli3m.Domain.Enities.User", "Teacher")
-                        .WithMany("QuizzesAsTeacher")
-                        .HasForeignKey("TeacherId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Assistant");
+                    b.Navigation("Admin");
 
                     b.Navigation("Lecture");
-
-                    b.Navigation("Teacher");
                 });
 
             modelBuilder.Entity("Engli3m.Domain.Enities.QuizSubmission", b =>
@@ -477,15 +463,11 @@ namespace Engli3m.Infrastructure.Migrations
 
             modelBuilder.Entity("Engli3m.Domain.Enities.User", b =>
                 {
-                    b.Navigation("LecturesAsAssistant");
-
-                    b.Navigation("LecturesAsTeacher");
+                    b.Navigation("LecturesAsAdmin");
 
                     b.Navigation("QuizSubmissions");
 
-                    b.Navigation("QuizzesAsAssistant");
-
-                    b.Navigation("QuizzesAsTeacher");
+                    b.Navigation("QuizzesAsAdmin");
                 });
 #pragma warning restore 612, 618
         }

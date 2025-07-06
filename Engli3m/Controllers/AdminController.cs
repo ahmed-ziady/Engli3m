@@ -40,40 +40,38 @@ namespace Engli3m.Controllers
             return Ok(new { Message = "Quiz uploaded successfully." });
         }
 
-        [HttpGet("locked-accounts")]
+        [HttpGet("student-accounts")]
         public async Task<IActionResult> GetAllLockedAccounts()
         {
-            var lockedAccounts = await _adminService.GetAllLockedAccountAsync();
+            var lockedAccounts = await _adminService.GetAllStudentAccountAsync();
             if (lockedAccounts == null || !lockedAccounts.Any())
-                return NotFound("No locked accounts found.");
-            return Ok(lockedAccounts);
-        }
-        [HttpGet("unlocked-accounts")]
-        public async Task<IActionResult> GetAllUnLockedAccounts()
-        {
-            var lockedAccounts = await _adminService.GetAllUnLockedAccountAsync();
-            if (lockedAccounts == null || !lockedAccounts.Any())
-                return NotFound("No Unlocked accounts found.");
+                return NotFound("No  accounts found.");
             return Ok(lockedAccounts);
         }
 
-        [HttpPost("unlock/{userId:int}")]
-        public async Task<IActionResult> UnlockUser(int userId)
+        [HttpPost("toggle-lock/{userId:int}")]
+        public async Task<IActionResult> ToggleUserLockStatusAsync(int userId)
         {
-            var success = await _adminService.UnlockUserAsync(userId);
-            if (!success)
-                return StatusCode(400, "Failed to unlock user.");
-            return Ok(new { Message = "User unlocked successfully." });
+            try
+            {
+                var isNowLocked = await _adminService.ToggleUserLockStatusAsync(userId);
+
+                var statusMessage = isNowLocked ? "User has been locked." : "User has been unlocked.";
+
+                return Ok(new { Message = statusMessage, IsLocked = isNowLocked });
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new { ex.Message });
+            }
+
+            catch (Exception)
+            {
+                return StatusCode(500, new { Message = "An unexpected error occurred while toggling user status." });
+            }
+
         }
 
-        [HttpPost("lock/{userId:int}")]
-        public async Task<IActionResult> LockUser(int userId)
-        {
-            var success = await _adminService.LockUserAsync(userId);
-            if (!success)
-                return StatusCode(400, "Failed to lock user.");
-            return Ok(new { Message = "User locked successfully." });
-        }
         [HttpGet("quizzes-answers")]
         public async Task<IActionResult> QuizzesAnswers()
         {

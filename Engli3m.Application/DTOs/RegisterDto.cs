@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Engli3m.Domain.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace Engli3m.Application.DTOs
 {
@@ -21,7 +22,7 @@ namespace Engli3m.Application.DTOs
         [StringLength(100, MinimumLength = 8, ErrorMessage = "Password must be at least 8 characters long.")]
         public string Password { get; set; } = string.Empty;
         [Required(ErrorMessage = "Grade is required.")]
-        public string Grade { get; set; } = string.Empty;
+        public GradeLevel Grade { get; set; }
         [Required(ErrorMessage = "Phone number is required.")]
         public string PhoneNumber { get; set; } = string.Empty;
 

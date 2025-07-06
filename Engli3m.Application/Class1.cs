@@ -1,4 +1,4 @@
-﻿namespace Engli3m.Domain
+﻿namespace Engli3m.Application
 {
     public class Class1
     {
