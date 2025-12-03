@@ -1,4 +1,4 @@
-﻿using Engli3m.Application.DTOs;
+﻿using Engli3m.Application.DTOs.Auth;
 using Engli3m.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,8 +10,6 @@ namespace Engli3m.Controllers
     [Route("api/[controller]")]
     public class AuthController(IAuthServices _authServices) : ControllerBase
     {
-
-
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterDto registerDto)
         {
@@ -24,6 +22,7 @@ namespace Engli3m.Controllers
 
             return Ok(result);
         }
+
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto dto)
         {
@@ -31,7 +30,7 @@ namespace Engli3m.Controllers
             {
                 var result = await _authServices.LoginAsync(dto);
                 if (result == null)
-                    return Unauthorized(new { message = "Invalid email or password." });
+                    return Unauthorized(new { message = "البريد الإلكتروني أو كلمة المرور غير صحيحة." });
 
                 return Ok(result);
             }
@@ -43,21 +42,31 @@ namespace Engli3m.Controllers
         }
 
 
-
-
         [HttpPost("logout")]
         [Authorize]
         public async Task<IActionResult> Logout()
         {
             var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (idClaim == null || !int.TryParse(idClaim, out var userId))
-                return Unauthorized(new { Error = "Invalid user" });
+                return Unauthorized(new { Error = "مستخدم غير صالح" });
 
             var ok = await _authServices.Logout(userId);
             if (!ok)
-                return BadRequest(new { Error = "Logout failed" });
+                return BadRequest(new { Error = "فشل تسجيل الخروج" });
 
             return NoContent();
         }
+        [HttpDelete("admin-delete/{targetUserId}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AdminDeleteUser(int targetUserId)
+        {
+
+            var result = await _authServices.DeleteUserAsync(targetUserId);
+            if (!result)
+                return BadRequest(new { Error = "فشل حذف الحساب" });
+
+            return Ok(new { Message = "تم حذف الحساب بنجاح" });
+        }
+
     }
 }

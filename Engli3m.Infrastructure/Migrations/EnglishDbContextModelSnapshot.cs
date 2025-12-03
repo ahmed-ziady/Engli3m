@@ -22,6 +22,160 @@ namespace Engli3m.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Engli3m.Domain.Enities.DeviceToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Platform")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DeviceTokens", (string)null);
+                });
+
+            modelBuilder.Entity("Engli3m.Domain.Enities.EQuestionSubmission", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("EQuizSubmissionId")
+                        .HasColumnType("int");
+
+                    b.Property<double>("EarnedPoints")
+                        .HasColumnType("float");
+
+                    b.Property<int>("QuestionId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("SelectedAnswerId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("WrittenAnswer")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EQuizSubmissionId");
+
+                    b.HasIndex("QuestionId");
+
+                    b.HasIndex("SelectedAnswerId");
+
+                    b.ToTable("EQuestionSubmissions", (string)null);
+                });
+
+            modelBuilder.Entity("Engli3m.Domain.Enities.EQuiz", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<TimeOnly>("Duration")
+                        .HasColumnType("time");
+
+                    b.Property<int?>("Grade")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("TotalPoints")
+                        .HasColumnType("float");
+
+                    b.Property<int>("UserID")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserID");
+
+                    b.ToTable("EQuizzes", (string)null);
+                });
+
+            modelBuilder.Entity("Engli3m.Domain.Enities.EQuizSubmission", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("EQuizId")
+                        .HasColumnType("int");
+
+                    b.Property<double>("Score")
+                        .HasColumnType("float");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EQuizId");
+
+                    b.HasIndex("StudentId");
+
+                    b.ToTable("EQuizSubmissions", (string)null);
+                });
+
+            modelBuilder.Entity("Engli3m.Domain.Enities.FavPost", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("DateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("FavPosts", (string)null);
+                });
+
             modelBuilder.Entity("Engli3m.Domain.Enities.Lecture", b =>
                 {
                     b.Property<int>("LectureId")
@@ -30,7 +184,7 @@ namespace Engli3m.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LectureId"));
 
-                    b.Property<int>("AssistantId")
+                    b.Property<int>("AdminId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("Date")
@@ -40,8 +194,8 @@ namespace Engli3m.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("TeacherId")
-                        .HasColumnType("int");
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -53,11 +207,118 @@ namespace Engli3m.Infrastructure.Migrations
 
                     b.HasKey("LectureId");
 
-                    b.HasIndex("AssistantId");
+                    b.HasIndex("AdminId");
 
-                    b.HasIndex("TeacherId");
+                    b.ToTable("Lectures", (string)null);
+                });
 
-                    b.ToTable("Lectures");
+            modelBuilder.Entity("Engli3m.Domain.Enities.Post", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Posts", (string)null);
+                });
+
+            modelBuilder.Entity("Engli3m.Domain.Enities.PostMedia", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.ToTable("Media", (string)null);
+                });
+
+            modelBuilder.Entity("Engli3m.Domain.Enities.Questions", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("EQuizId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Explanation")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("Points")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EQuizId");
+
+                    b.ToTable("QuizQuestions", (string)null);
+                });
+
+            modelBuilder.Entity("Engli3m.Domain.Enities.QuestionsAnswer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Explanation")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsCorrect")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("QuestionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestionId");
+
+                    b.ToTable("QuestionsAnswers", (string)null);
                 });
 
             modelBuilder.Entity("Engli3m.Domain.Enities.Quiz", b =>
@@ -68,15 +329,11 @@ namespace Engli3m.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("QuizId"));
 
-                    b.Property<int>("AssistantId")
+                    b.Property<int>("AdminId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("Grade")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("LectureId")
                         .HasColumnType("int");
@@ -85,22 +342,17 @@ namespace Engli3m.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("TeacherId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("QuizId");
 
-                    b.HasIndex("AssistantId");
+                    b.HasIndex("AdminId");
 
                     b.HasIndex("LectureId");
 
-                    b.HasIndex("TeacherId");
-
-                    b.ToTable("Quizzes");
+                    b.ToTable("Quizzes", (string)null);
                 });
 
             modelBuilder.Entity("Engli3m.Domain.Enities.QuizSubmission", b =>
@@ -130,7 +382,7 @@ namespace Engli3m.Infrastructure.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("QuizSubmissions");
+                    b.ToTable("QuizSubmissions", (string)null);
                 });
 
             modelBuilder.Entity("Engli3m.Domain.Enities.Role", b =>
@@ -178,8 +430,14 @@ namespace Engli3m.Infrastructure.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
+                    b.Property<string>("CleanPassword")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CurrentJwtToken")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
@@ -189,12 +447,22 @@ namespace Engli3m.Infrastructure.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<string>("FcmToken")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Grade")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsLocked")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPayed")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -205,6 +473,9 @@ namespace Engli3m.Infrastructure.Migrations
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<double>("NetScore")
+                        .HasColumnType("float");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -223,8 +494,14 @@ namespace Engli3m.Infrastructure.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<string>("ProfilePictureUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("TokenExpiry")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
@@ -244,6 +521,35 @@ namespace Engli3m.Infrastructure.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("Engli3m.Domain.Enities.VideoProgress", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsWatched")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VideoId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WatchedSeconds")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StudentId");
+
+                    b.HasIndex("VideoId");
+
+                    b.ToTable("VideoProgress", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -349,30 +655,140 @@ namespace Engli3m.Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Engli3m.Domain.Enities.EQuestionSubmission", b =>
+                {
+                    b.HasOne("Engli3m.Domain.Enities.EQuizSubmission", "EQuizSubmission")
+                        .WithMany("EQuestionSubmissions")
+                        .HasForeignKey("EQuizSubmissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Engli3m.Domain.Enities.Questions", "Question")
+                        .WithMany("EQuestionSubmissions")
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Engli3m.Domain.Enities.QuestionsAnswer", "SelectedAnswer")
+                        .WithMany()
+                        .HasForeignKey("SelectedAnswerId");
+
+                    b.Navigation("EQuizSubmission");
+
+                    b.Navigation("Question");
+
+                    b.Navigation("SelectedAnswer");
+                });
+
+            modelBuilder.Entity("Engli3m.Domain.Enities.EQuiz", b =>
+                {
+                    b.HasOne("Engli3m.Domain.Enities.User", "User")
+                        .WithMany("EQuizzes")
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Engli3m.Domain.Enities.EQuizSubmission", b =>
+                {
+                    b.HasOne("Engli3m.Domain.Enities.EQuiz", "EQuiz")
+                        .WithMany("Submissions")
+                        .HasForeignKey("EQuizId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Engli3m.Domain.Enities.User", "Student")
+                        .WithMany("EQuizSubmissions")
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("EQuiz");
+
+                    b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("Engli3m.Domain.Enities.FavPost", b =>
+                {
+                    b.HasOne("Engli3m.Domain.Enities.Post", "Post")
+                        .WithMany("FavPosts")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Engli3m.Domain.Enities.User", "User")
+                        .WithMany("FavPosts")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Engli3m.Domain.Enities.Lecture", b =>
                 {
-                    b.HasOne("Engli3m.Domain.Enities.User", "Assistant")
-                        .WithMany("LecturesAsAssistant")
-                        .HasForeignKey("AssistantId")
+                    b.HasOne("Engli3m.Domain.Enities.User", "Admin")
+                        .WithMany("LecturesAsAdmin")
+                        .HasForeignKey("AdminId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Engli3m.Domain.Enities.User", "Teacher")
-                        .WithMany("LecturesAsTeacher")
-                        .HasForeignKey("TeacherId")
+                    b.Navigation("Admin");
+                });
+
+            modelBuilder.Entity("Engli3m.Domain.Enities.Post", b =>
+                {
+                    b.HasOne("Engli3m.Domain.Enities.User", "User")
+                        .WithMany("Posts")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Assistant");
+                    b.Navigation("User");
+                });
 
-                    b.Navigation("Teacher");
+            modelBuilder.Entity("Engli3m.Domain.Enities.PostMedia", b =>
+                {
+                    b.HasOne("Engli3m.Domain.Enities.Post", "Post")
+                        .WithMany("Media")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+                });
+
+            modelBuilder.Entity("Engli3m.Domain.Enities.Questions", b =>
+                {
+                    b.HasOne("Engli3m.Domain.Enities.EQuiz", "EQuiz")
+                        .WithMany("Questions")
+                        .HasForeignKey("EQuizId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("EQuiz");
+                });
+
+            modelBuilder.Entity("Engli3m.Domain.Enities.QuestionsAnswer", b =>
+                {
+                    b.HasOne("Engli3m.Domain.Enities.Questions", "Question")
+                        .WithMany("Answers")
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
                 });
 
             modelBuilder.Entity("Engli3m.Domain.Enities.Quiz", b =>
                 {
-                    b.HasOne("Engli3m.Domain.Enities.User", "Assistant")
-                        .WithMany("QuizzesAsAssistant")
-                        .HasForeignKey("AssistantId")
+                    b.HasOne("Engli3m.Domain.Enities.User", "Admin")
+                        .WithMany("QuizzesAsAdmin")
+                        .HasForeignKey("AdminId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -382,17 +798,9 @@ namespace Engli3m.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Engli3m.Domain.Enities.User", "Teacher")
-                        .WithMany("QuizzesAsTeacher")
-                        .HasForeignKey("TeacherId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Assistant");
+                    b.Navigation("Admin");
 
                     b.Navigation("Lecture");
-
-                    b.Navigation("Teacher");
                 });
 
             modelBuilder.Entity("Engli3m.Domain.Enities.QuizSubmission", b =>
@@ -412,6 +820,25 @@ namespace Engli3m.Infrastructure.Migrations
                     b.Navigation("Quiz");
 
                     b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("Engli3m.Domain.Enities.VideoProgress", b =>
+                {
+                    b.HasOne("Engli3m.Domain.Enities.User", "Student")
+                        .WithMany("VideoProgressRecords")
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Engli3m.Domain.Enities.Lecture", "Video")
+                        .WithMany("VideoProgressRecords")
+                        .HasForeignKey("VideoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Student");
+
+                    b.Navigation("Video");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -465,9 +892,37 @@ namespace Engli3m.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Engli3m.Domain.Enities.EQuiz", b =>
+                {
+                    b.Navigation("Questions");
+
+                    b.Navigation("Submissions");
+                });
+
+            modelBuilder.Entity("Engli3m.Domain.Enities.EQuizSubmission", b =>
+                {
+                    b.Navigation("EQuestionSubmissions");
+                });
+
             modelBuilder.Entity("Engli3m.Domain.Enities.Lecture", b =>
                 {
                     b.Navigation("Quizzes");
+
+                    b.Navigation("VideoProgressRecords");
+                });
+
+            modelBuilder.Entity("Engli3m.Domain.Enities.Post", b =>
+                {
+                    b.Navigation("FavPosts");
+
+                    b.Navigation("Media");
+                });
+
+            modelBuilder.Entity("Engli3m.Domain.Enities.Questions", b =>
+                {
+                    b.Navigation("Answers");
+
+                    b.Navigation("EQuestionSubmissions");
                 });
 
             modelBuilder.Entity("Engli3m.Domain.Enities.Quiz", b =>
@@ -477,15 +932,21 @@ namespace Engli3m.Infrastructure.Migrations
 
             modelBuilder.Entity("Engli3m.Domain.Enities.User", b =>
                 {
-                    b.Navigation("LecturesAsAssistant");
+                    b.Navigation("EQuizSubmissions");
 
-                    b.Navigation("LecturesAsTeacher");
+                    b.Navigation("EQuizzes");
+
+                    b.Navigation("FavPosts");
+
+                    b.Navigation("LecturesAsAdmin");
+
+                    b.Navigation("Posts");
 
                     b.Navigation("QuizSubmissions");
 
-                    b.Navigation("QuizzesAsAssistant");
+                    b.Navigation("QuizzesAsAdmin");
 
-                    b.Navigation("QuizzesAsTeacher");
+                    b.Navigation("VideoProgressRecords");
                 });
 #pragma warning restore 612, 618
         }

@@ -18,5 +18,9 @@ namespace Engli3m.Infrastructure.Helper
 
             return fileName;
         }
+        public static string GetExtension(IFormFile file)
+        {
+            return (Path.GetExtension(file.FileName));
+        }
     }
 }

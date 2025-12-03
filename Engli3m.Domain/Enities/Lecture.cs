@@ -10,12 +10,13 @@ namespace Engli3m.Domain.Enities
         public DateTime Date { get; set; } = DateTime.UtcNow;
         public string VideoUrl { get; set; } = string.Empty;
         public GradeLevel Grade { get; set; }
-
+        public bool IsActive { get; set; }
         // Relationships
         public int AdminId { get; set; }
         public User Admin { get; set; } = null!;
 
 
         public ICollection<Quiz> Quizzes { get; set; } = [];
+        public ICollection<VideoProgress> VideoProgressRecords { get; set; } = [];
     }
 }
