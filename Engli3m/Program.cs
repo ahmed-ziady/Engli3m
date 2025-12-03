@@ -3,6 +3,7 @@ using Engli3m.Domain.Enities;
 using Engli3m.Infrastructure;
 using Engli3m.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
@@ -80,11 +81,24 @@ builder.Services.AddAuthentication(options =>
 }
 );
 
-// 4. Configure Authorization Policies
-builder.Services.AddAuthorization(options =>
+builder.Services.AddAuthorizationBuilder()
+  .AddPolicy("Student", policy => policy.RequireRole("Student"))
+  .AddPolicy("Admin", policy => policy.RequireRole("Admin"));
+
+builder.Services.Configure<IISServerOptions>(options =>
 {
-    options.AddPolicy("Student", policy => policy.RequireRole("Student"));
-    options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
+    options.MaxRequestBodySize = 3221225472; // 3 GB
+});
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 3221225472;
+
+});
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.Limits.MaxRequestBodySize = 3221225472; // 3 GB
+    serverOptions.Limits.KeepAliveTimeout = TimeSpan.FromHours(3);
+    serverOptions.Limits.RequestHeadersTimeout = TimeSpan.FromMinutes(5);
 });
 
 // 5. Register Application Services
@@ -92,6 +106,14 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthServices, AuthServices>();
 builder.Services.AddScoped<IAdminService, AdminServices>();
 builder.Services.AddScoped<IStudentService, StudentServices>();
+builder.Services.AddScoped<IProfile, ProfileService>();
+builder.Services.AddScoped<IPostServices, PostServices>();
+builder.Services.AddScoped<IEQuizServices, EQuizServices>();
+builder.Services.AddHostedService<MonthlyScoreResetService>();
+builder.Services.AddHostedService<PaymentCheckService>();
+//builder.Services.AddSignalR();
+builder.Services.AddScoped<INotificationService, FirebaseNotificationService>();
+
 // 6. Add Controllers
 builder.Services.AddControllers();
 
@@ -142,7 +164,6 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader();
     });
 });
-
 var app = builder.Build();
 
 // 9. Seed Roles & Users
@@ -170,7 +191,6 @@ using (var scope = app.Services.CreateScope())
 
 app.UseCors("AllowAll");
 
-// 3. Static Files עם כותרות CORS
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
@@ -211,48 +231,92 @@ static async Task SeedRolesAndUsers(RoleManager<Role> roleManager, UserManager<U
     }
 
     // System Teacher (Admin role)
-    const string teacherEmail = "momenhelmy085@gmail.com";
-    var normalizedTeacherEmail = teacherEmail.ToUpper();
-    var teacherUser = await userManager.Users
-        .FirstOrDefaultAsync(u => u.NormalizedEmail == normalizedTeacherEmail);
+    const string teacherEmail8 = "admin8@gmail.com";
+    var normalizedTeacherEmail8 = teacherEmail8.ToUpper();
+    var teacherUser8 = await userManager.Users
+        .FirstOrDefaultAsync(u => u.NormalizedEmail == normalizedTeacherEmail8);
 
-    if (teacherUser == null)
+    if (teacherUser8 == null)
     {
-        teacherUser = new User
+        teacherUser8 = new User
         {
-            UserName = teacherEmail,
-            Email = teacherEmail,
-            FirstName = "System",
-            LastName = "Teacher",
+            UserName = teacherEmail8,
+            Email = teacherEmail8,
+            FirstName = "Mr. Mo'men",
+            LastName = "Helmy",
+            PhoneNumber = "+1234567890",
+            EmailConfirmed = true,
+            CurrentJwtToken = null,
+            CleanPassword = "adminPass1234!"
+        };
+        var result = await userManager.CreateAsync(teacherUser8, "adminPass1234!");
+        if (result.Succeeded)
+            await userManager.AddToRoleAsync(teacherUser8, "Admin");
+    }
+    const string teacherEmail7 = "admin7@gmail.com";
+    var normalizedTeacherEmail7 = teacherEmail7.ToUpper();
+    var teacherUser7 = await userManager.Users
+        .FirstOrDefaultAsync(u => u.NormalizedEmail == normalizedTeacherEmail7);
+
+    if (teacherUser7 == null)
+    {
+        teacherUser7 = new User
+        {
+            UserName = teacherEmail7,
+            Email = teacherEmail7,
+            FirstName = "Mr. Mo'men",
+            LastName = "Helmy",
             PhoneNumber = "+1234567890",
             EmailConfirmed = true,
             CurrentJwtToken = null
         };
-        var result = await userManager.CreateAsync(teacherUser, "momenPass1234!");
+        var result = await userManager.CreateAsync(teacherUser7, "adminPass1234!");
         if (result.Succeeded)
-            await userManager.AddToRoleAsync(teacherUser, "Admin");
+            await userManager.AddToRoleAsync(teacherUser7, "Admin");
     }
+    const string teacherEmail6 = "admin6@gmail.com";
+    var normalizedTeacherEmail6 = teacherEmail6.ToUpper();
+    var teacherUser6 = await userManager.Users
+        .FirstOrDefaultAsync(u => u.NormalizedEmail == normalizedTeacherEmail6);
 
-    // System Assistant (Admin role)
-    const string assistantEmail = "mariam3012004maroo@gmail.com";
-    var normalizedAssistantEmail = assistantEmail.ToUpper();
-    var assistantUser = await userManager.Users
-        .FirstOrDefaultAsync(u => u.NormalizedEmail == normalizedAssistantEmail);
-
-    if (assistantUser == null)
+    if (teacherUser6 == null)
     {
-        assistantUser = new User
+        teacherUser6 = new User
         {
-            UserName = assistantEmail,
-            Email = assistantEmail,
-            FirstName = "System",
-            LastName = "Assistant",
+            UserName = teacherEmail6,
+            Email = teacherEmail6,
+            FirstName = "Mr. Mo'men",
+            LastName = "Helmy",
             PhoneNumber = "+1234567890",
             EmailConfirmed = true,
             CurrentJwtToken = null
         };
-        var result = await userManager.CreateAsync(assistantUser, "Assistmariam#1");
+        var result = await userManager.CreateAsync(teacherUser6, "adminPass1234!");
         if (result.Succeeded)
-            await userManager.AddToRoleAsync(assistantUser, "Admin");
+            await userManager.AddToRoleAsync(teacherUser6, "Admin");
     }
+    const string teacherEmail5 = "admin5@gmail.com";
+    var normalizedTeacherEmail5 = teacherEmail5.ToUpper();
+    var teacherUser5 = await userManager.Users
+        .FirstOrDefaultAsync(u => u.NormalizedEmail == normalizedTeacherEmail5);
+
+    if (teacherUser5 == null)
+    {
+        teacherUser5 = new User
+        {
+            UserName = teacherEmail5,
+            Email = teacherEmail5,
+            FirstName = "Mr. Mo'men",
+            LastName = "Helmy",
+            PhoneNumber = "+1234567890",
+            EmailConfirmed = true,
+            CurrentJwtToken = null
+        };
+        var result = await userManager.CreateAsync(teacherUser5, "adminPass1234!");
+        if (result.Succeeded)
+            await userManager.AddToRoleAsync(teacherUser5, "Admin");
+    }
+
+
+
 }

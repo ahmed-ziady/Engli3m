@@ -1,4 +1,4 @@
-﻿using Engli3m.Application.DTOs;
+﻿using Engli3m.Application.DTOs.Auth;
 
 namespace Engli3m.Application.Interfaces
 {
@@ -7,8 +7,7 @@ namespace Engli3m.Application.Interfaces
         Task<AuthResponseDto> RegisterAsync(RegisterDto registerDto);
         Task<AuthResponseDto> LoginAsync(LoginDto loginDto);
         Task<bool> Logout(int userId);
-
-
+        Task<bool> DeleteUserAsync(int userId);
     }
 
 }

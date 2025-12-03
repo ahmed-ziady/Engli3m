@@ -7,9 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CorePush" Version="4.3.0" />
+    <PackageReference Include="CrewCloud.CorePush" Version="6.1.1" />
+    <PackageReference Include="FirebaseAdmin" Version="3.3.0" />
+    <PackageReference Include="Google.Apis.Auth" Version="1.70.0" />
+    <PackageReference Include="lpains.CorePush" Version="4.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.6" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.6" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Common" Version="9.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.6">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -31,8 +37,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="NewFolder\" />
     <Folder Include="wwwroot\uploads\answers\images\" />
     <Folder Include="wwwroot\uploads\lectures\videos\" />
+    <Folder Include="wwwroot\uploads\Posts\images\" />
+    <Folder Include="wwwroot\uploads\Posts\videos\" />
+    <Folder Include="wwwroot\uploads\Profile\images\" />
     <Folder Include="wwwroot\uploads\quizzes\images\" />
   </ItemGroup>
 
