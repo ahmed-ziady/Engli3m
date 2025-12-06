@@ -1,4 +1,4 @@
-🚀 Engli3m API — Educational Platform Backend
+🚀 Engo — Educational Platform Backend
 
 Engli3m API is a complete backend system built for an educational platform that manages lectures, quizzes, notifications, student progress, user authentication, and admin operations.
 The project follows clean architecture principles and supports  REST API .
